@@ -18,3 +18,5 @@ coverage/
 # System files
 .DS_Store
 Thumbs.db
+
+/src/generated/prisma

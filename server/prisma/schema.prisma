@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+model Program {
+  id       Int    @id
+  name     String
+  code     String @unique
+  duration Int
+
+  years Year[]
+}
+
+model Year {
+  id          Int @id
+  year_number Int
+  program_id  Int
+
+  program  Program   @relation(fields: [program_id], references: [id])
+  sections Section[]
+}
+
+model Department {
+  id   Int    @id
+  name String
+  code String
+
+  sections           Section[]
+  departmentSubjects Department_Subject[]
+}
+
+model Section {
+  id            Int    @id
+  name          String
+  year_id       Int
+  department_id Int
+
+  year       Year       @relation(fields: [year_id], references: [id])
+  department Department @relation(fields: [department_id], references: [id])
+
+  groups     Group[]
+  timetables Timetable[]
+}
+
+model Group {
+  id         Int    @id
+  group_name String
+  section_id Int
+
+  section  Section   @relation(fields: [section_id], references: [id])
+  students Student[]
+}
+
+model Student {
+  id       String  @id
+  name     String
+  email    String  @unique
+  avatar   String?
+  password String
+  group_id Int
+
+  group Group @relation(fields: [group_id], references: [id])
+}
+
+model Faculty {
+  id           Int     @id
+  name         String
+  email        String  @unique
+  password     String  @unique
+  phone_number String  @unique
+  avatar       String?
+
+  faculty_subjects Faculty_Subject[]
+  timetables       Timetable[]
+}
+
+model Subject {
+  id   Int    @id
+  name String
+  code String
+
+  faculty_subjects    Faculty_Subject[]
+  department_subjects Department_Subject[]
+  timetables          Timetable[]
+}
+
+model Faculty_Subject {
+  id          String @id
+  faculty_id  Int
+  subuject_id Int
+
+  faculty Faculty @relation(fields: [faculty_id], references: [id])
+  subject Subject @relation(fields: [subuject_id], references: [id])
+}
+
+model Department_Subject {
+  id         String @id
+  dept_id    Int
+  subject_id Int
+
+  department Department @relation(fields: [dept_id], references: [id])
+  subject    Subject    @relation(fields: [subject_id], references: [id])
+}
+
+model TimeSlot {
+  id         Int    @id
+  day        String
+  start_time String
+
+  timetables Timetable[]
+}
+
+model Room {
+  id        Int    @id
+  room_no   String
+  is_theory String
+
+  timetables Timetable[]
+}
+
+model Timetable {
+  id         String  @id
+  teacher_id Int
+  subject_id Int
+  time_slot  Int
+  room_no    Int
+  section_id Int
+  is_theory  Boolean
+
+  teacher  Faculty  @relation(fields: [teacher_id], references: [id])
+  subject  Subject  @relation(fields: [subject_id], references: [id])
+  timeslot TimeSlot @relation(fields: [time_slot], references: [id])
+  room     Room     @relation(fields: [room_no], references: [id])
+  section  Section  @relation(fields: [section_id], references: [id])
+}
+
+model Admin {
+  id       String @id
+  email    String @unique
+  password String
+  name     String
+}
